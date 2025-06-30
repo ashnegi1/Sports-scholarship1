@@ -9,23 +9,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Building2, Eye, EyeOff } from "lucide-react";
+import { Building2, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
-import { useToast } from "@/components/ui/use-toast";
-import { useNavigate } from "react-router-dom";
 
 interface SignInModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSwitchToSignUp: () => void;
-  redirectTo?: string;
 }
 
 const SignInModal = ({
   isOpen,
   onClose,
   onSwitchToSignUp,
-  redirectTo,
 }: SignInModalProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -33,53 +29,29 @@ const SignInModal = ({
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [loginError, setLoginError] = useState<string | null>(null);
-  const { login } = useAuth();
-  const { toast } = useToast();
-  const navigate = useNavigate();
+  const [error, setError] = useState("");
+  const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setLoginError(null);
+    setError("");
 
     try {
-      const success = await login(formData.email, formData.password);
-      
-      if (success) {
-        toast({
-          title: "Sign in successful",
-          description: "Welcome back to EIL Scholar!",
-        });
-        
-        // Close the modal first before navigation
+      const result = await signIn(formData.email, formData.password);
+
+      if (result.success) {
+        // Successful login
         onClose();
-        
-        // Add slight delay before navigation to ensure modal closes properly
-        setTimeout(() => {
-          // If admin, redirect to admin dashboard
-          if (formData.email === "admin@example.com") {
-            navigate("/admin");
-          } else {
-            navigate(redirectTo || "/dashboard");
-          }
-        }, 100);
+        setFormData({ email: "", password: "" });
+        // Show success message
+        alert("Welcome back! You have successfully signed in.");
       } else {
-        setLoginError("Invalid email or password. Please try again.");
-        toast({
-          title: "Sign in failed",
-          description: "Invalid email or password. Please try again.",
-          variant: "destructive",
-        });
+        // Show error message
+        setError(result.error || "Invalid email or password");
       }
-    } catch (error) {
-      console.error("Login error:", error);
-      setLoginError("An unexpected error occurred. Please try again later.");
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred. Please try again later.",
-        variant: "destructive",
-      });
+    } catch (err) {
+      setError("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -90,20 +62,21 @@ const SignInModal = ({
       ...formData,
       [e.target.name]: e.target.value,
     });
-    
-    // Clear error when typing
-    if (loginError) {
-      setLoginError(null);
-    }
+    // Clear error when user starts typing
+    if (error) setError("");
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="space-y-3">
           <div className="flex items-center justify-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary">
-              <Building2 className="h-6 w-6 text-primary-foreground" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg">
+              <img
+                src="https://cdn.builder.io/api/v1/image/assets%2F6638b6e3f08849eb91b735b1c7b57266%2F6058fef7c7e349ea9850291fc20c0a96?format=webp&width=800"
+                alt="EIL Scholar Logo"
+                className="h-12 w-12 object-contain"
+              />
             </div>
           </div>
           <DialogTitle className="text-center text-2xl">
@@ -116,6 +89,13 @@ const SignInModal = ({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {error && (
+            <div className="flex items-center gap-2 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+              <AlertCircle className="h-4 w-4" />
+              {error}
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="email">Email Address</Label>
             <Input
@@ -155,10 +135,6 @@ const SignInModal = ({
             </div>
           </div>
 
-          {loginError && (
-            <div className="text-sm text-destructive">{loginError}</div>
-          )}
-
           <div className="flex items-center justify-between">
             <label className="flex items-center space-x-2 text-sm">
               <input type="checkbox" className="rounded border-gray-300" />
@@ -185,12 +161,6 @@ const SignInModal = ({
             >
               Sign up here
             </Button>
-          </div>
-          
-          <div className="text-center text-xs text-muted-foreground border-t pt-4 mt-4">
-            <p>Demo Accounts:</p>
-            <p>Admin: admin@example.com / admin123</p>
-            <p>User: user@example.com / password123</p>
           </div>
         </form>
       </DialogContent>
