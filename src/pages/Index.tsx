@@ -217,7 +217,7 @@ const Index = () => {
                 size="lg"
                 variant="secondary"
                 asChild
-                className="bg-black text-primary hover:bg-gray-100"
+                className="bg-white text-primary hover:bg-gray-100"
               >
                 <Link to="/apply">
                   Apply Now <ArrowRight className="ml-2 h-4 w-4" />
@@ -243,7 +243,7 @@ const Index = () => {
               <span className="text-xl font-bold">EIL Scholar</span>
             </Link>
             <div className="text-center text-sm text-muted-foreground">
-              <p>&copy; 2025 Engineers India Limited. All rights reserved.</p>
+              <p>&copy; 2024 Engineers India Limited. All rights reserved.</p>
             </div>
           </div>
         </div>
