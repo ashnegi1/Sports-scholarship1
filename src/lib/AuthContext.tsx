@@ -1,118 +1,107 @@
-import { createContext, useContext, useState, ReactNode, useEffect } from "react";
-
-export type UserRole = "user" | "admin";
-
-export interface AuthUser {
-  id: string;
-  email: string;
-  name: string;
-  role: UserRole;
-  user_metadata?: {
-    [key: string]: any;
-  };
-}
-
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { MockAuthService, MockUser } from "@/lib/mockAuth";
 
 interface AuthContextType {
-  user: AuthUser | null;
+  user: MockUser | null;
+  loading: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
-  logout: () => void;
+  signIn: (
+    email: string,
+    password: string,
+  ) => Promise<{ success: boolean; error?: string }>;
+  signUp: (data: any) => Promise<{ success: boolean; error?: string }>;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock user database for demo purposes
-const MOCK_USERS = [
-  {
-    id: "user-1",
-    email: "user@example.com",
-    password: "password123",
-    name: "Regular User",
-    role: "user" as UserRole,
-  },
-  {
-    id: "admin-1",
-    email: "admin@example.com",
-    password: "admin123",
-    name: "Admin User",
-    role: "admin" as UserRole,
-  },
-];
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<MockUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
-export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
-
-  // Load user from localStorage on mount
   useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem("auth_user");
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        setUser(parsedUser);
-      }
-    } catch (error) {
-      console.error("Failed to parse user from localStorage:", error);
-      localStorage.removeItem("auth_user");
-    } finally {
-      setIsInitialized(true);
-    }
+    // Check for existing user session on mount
+    const currentUser = MockAuthService.getCurrentUser();
+    setUser(currentUser);
+    setLoading(false);
   }, []);
 
-  const isAuthenticated = !!user;
-  const isAdmin = user?.role === "admin";
-
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // In a real app, this would be an API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const foundUser = MOCK_USERS.find(
-          (u) => u.email === email && u.password === password
-        );
-
-        if (foundUser) {
-          const { password, ...userWithoutPassword } = foundUser;
-          setUser(userWithoutPassword);
-          try {
-            localStorage.setItem("auth_user", JSON.stringify(userWithoutPassword));
-          } catch (error) {
-            console.error("Failed to save user to localStorage:", error);
-          }
-          resolve(true);
-        } else {
-          resolve(false);
-        }
-      }, 800);
-    });
-  };
-
-  const logout = () => {
-    setUser(null);
+  const signIn = async (email: string, password: string) => {
+    setLoading(true);
     try {
-      localStorage.removeItem("auth_user");
+      const result = await MockAuthService.signIn(email, password);
+      if (result.success && result.user) {
+        setUser(result.user);
+      }
+      setLoading(false);
+      return result;
     } catch (error) {
-      console.error("Failed to remove user from localStorage:", error);
+      setLoading(false);
+      return {
+        success: false,
+        error: "An unexpected error occurred",
+      };
     }
   };
 
-  if (!isInitialized) {
-    // Return a simple loading state while initializing
-    return null;
-  }
+  const signUp = async (data: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    college: string;
+    engineeringField: string;
+    phone: string;
+  }) => {
+    setLoading(true);
+    try {
+      const result = await MockAuthService.signUp(data);
+      if (result.success && result.user) {
+        setUser(result.user);
+      }
+      setLoading(false);
+      return result;
+    } catch (error) {
+      setLoading(false);
+      return {
+        success: false,
+        error: "An unexpected error occurred",
+      };
+    }
+  };
+
+  const signOut = async () => {
+    setLoading(true);
+    await MockAuthService.signOut();
+    setUser(null);
+    setLoading(false);
+  };
+
+  const isAuthenticated = !!user;
+  const isAdmin = MockAuthService.isAdmin(user);
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, isAdmin, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        isAuthenticated,
+        isAdmin,
+        signIn,
+        signUp,
+        signOut,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
-};
+}
 
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
-}; 
+}

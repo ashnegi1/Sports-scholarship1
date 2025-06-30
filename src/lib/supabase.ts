@@ -1,14 +1,11 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, User, Session } from '@supabase/supabase-js';
 
-// Supabase configuration - In production, these would be environment variables
 const supabaseUrl = "https://your-project-ref.supabase.co";
 const supabaseAnonKey = "your-anon-key";
 
-// For demo purposes, we'll create a demo client
-// In production, you'd have real Supabase credentials
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-// Database schema types
+// Custom DB interface
 export interface Profile {
   id: string;
   email: string;
@@ -20,6 +17,7 @@ export interface Profile {
   created_at: string;
   updated_at: string;
 }
+
 
 export interface ApplicationData {
   id: string;

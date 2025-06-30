@@ -25,12 +25,12 @@ const SignInModal = ({
 }: SignInModalProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: "shreyans.jaiswal704@gmail.com",
-    password: "Shreyans123",
+    email: "shreyansjaiswal2005@gmail.com",
+    password: "jaiswal12345",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { login } = useAuth();
+  const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,18 +38,21 @@ const SignInModal = ({
     setError("");
 
     try {
-      const result = await login(formData.email, formData.password);
+      const result = await signIn(formData.email, formData.password);
 
-          if (result) {
-      // Successful login
-      onClose();
-      setFormData({ email: "", password: "" });
-      alert("Welcome back! You have successfully signed in.");
-    } else {
-      // Show error message
-      setError("Invalid email or password");
-    }
-
+      if (result.success) {
+        // Successful login
+        onClose();
+        setFormData({
+          email: "shreyansjaiswal2005@gmail.com",
+          password: "jaiswal12345",
+        });
+        // Show success message
+        alert("Welcome back! You have successfully signed in.");
+      } else {
+        // Show error message
+        setError(result.error || "Invalid email or password");
+      }
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
     } finally {

@@ -1,4 +1,4 @@
-import { supabase } from "./supabase";
+import { supabase } from "./supabase"; // your local client
 import type { User } from "@supabase/supabase-js";
 
 export interface SignUpData {
@@ -21,6 +21,7 @@ export interface AuthResponse {
   user?: User;
   error?: string;
 }
+
 
 // Supabase uses bcrypt internally for password hashing
 // This provides the same security as implementing bcrypt ourselves
