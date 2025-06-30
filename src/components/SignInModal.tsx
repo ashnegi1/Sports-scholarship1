@@ -18,12 +18,14 @@ interface SignInModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSwitchToSignUp: () => void;
+  redirectTo?: string;
 }
 
 const SignInModal = ({
   isOpen,
   onClose,
   onSwitchToSignUp,
+  redirectTo,
 }: SignInModalProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -59,7 +61,7 @@ const SignInModal = ({
           if (formData.email === "admin@example.com") {
             navigate("/admin");
           } else {
-            navigate("/dashboard");
+            navigate(redirectTo || "/dashboard");
           }
         }, 100);
       } else {
