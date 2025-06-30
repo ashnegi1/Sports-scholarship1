@@ -7,7 +7,11 @@ export interface AuthUser {
   email: string;
   name: string;
   role: UserRole;
+  user_metadata?: {
+    [key: string]: any;
+  };
 }
+
 
 interface AuthContextType {
   user: AuthUser | null;
