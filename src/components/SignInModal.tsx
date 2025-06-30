@@ -40,12 +40,15 @@ const SignInModal = ({
     try {
       const result = await login(formData.email, formData.password);
 
-      if (result) {
-  // Successful login
-  onClose();
-} else {
-  setError("Invalid email or password");
-}
+          if (result) {
+      // Successful login
+      onClose();
+      setFormData({ email: "", password: "" });
+      alert("Welcome back! You have successfully signed in.");
+    } else {
+      // Show error message
+      setError("Invalid email or password");
+    }
 
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
@@ -64,7 +67,7 @@ const SignInModal = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader className="space-y-3">
           <div className="flex items-center justify-center">
