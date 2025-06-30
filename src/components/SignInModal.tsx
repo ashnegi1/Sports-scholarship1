@@ -25,8 +25,8 @@ const SignInModal = ({
 }: SignInModalProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    email: "shreyans.jaiswal704@gmail.com",
+    password: "Shreyans123",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
