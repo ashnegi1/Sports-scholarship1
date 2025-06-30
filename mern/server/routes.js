@@ -1,22 +1,38 @@
 const express = require('express');
 const router = express.Router();
-const Applicant = require('./models/Applicant');
+const mongoose = require('mongoose');
 
-// POST: Add new applicant
-router.post('/applicants', async (req, res) => {
+// Define User schema
+const userSchema = new mongoose.Schema({
+  id: { type: String, required: true },
+  email: { type: String, required: true },
+  name: { type: String, required: true },
+  role: { type: String, enum: ['user', 'admin'], default: 'user' },
+  user_metadata: { type: Object }
+});
+
+const User = mongoose.model('User', userSchema);
+
+// Create new user (register or sync)
+router.post('/users', async (req, res) => {
   try {
-    const applicant = new Applicant(req.body);
-    await applicant.save();
-    res.status(201).json(applicant);
+    const { id, email, name, role, user_metadata } = req.body;
+    const user = new User({ id, email, name, role, user_metadata });
+    await user.save();
+    res.status(201).json(user);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 });
 
-// GET: List all applicants
-router.get('/applicants', async (req, res) => {
-  const applicants = await Applicant.find();
-  res.json(applicants);
+// Get all users
+router.get('/users', async (req, res) => {
+  try {
+    const users = await User.find();
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 module.exports = router;
