@@ -30,7 +30,7 @@ const SignInModal = ({
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const { signIn } = useAuth();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,18 +38,15 @@ const SignInModal = ({
     setError("");
 
     try {
-      const result = await signIn(formData.email, formData.password);
+      const result = await login(formData.email, formData.password);
 
-      if (result.success) {
-        // Successful login
-        onClose();
-        setFormData({ email: "", password: "" });
-        // Show success message
-        alert("Welcome back! You have successfully signed in.");
-      } else {
-        // Show error message
-        setError(result.error || "Invalid email or password");
-      }
+      if (result) {
+  // Successful login
+  onClose();
+} else {
+  setError("Invalid email or password");
+}
+
     } catch (err) {
       setError("An unexpected error occurred. Please try again.");
     } finally {
