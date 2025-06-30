@@ -101,7 +101,7 @@ const Dashboard = () => {
     },
     {
       title: "Total Scholarship Value",
-      value: "₹7.3L",
+      value: "₹6.3L",
       icon: DollarSign,
       change: "+₹3L potential",
       changeType: "positive",

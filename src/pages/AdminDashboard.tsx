@@ -152,7 +152,7 @@ const AdminDashboard = () => {
       changeType: "positive",
     },
     {
-      title: "Pending Review",
+      title: "Under Review",
       value: "43",
       icon: Clock,
       change: "+5 today",

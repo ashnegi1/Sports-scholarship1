@@ -1,52 +1,36 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { 
-  Building2, 
-  Menu, 
-  X, 
-  UserCircle, 
-  LogOut, 
-  Gauge, 
-  ChevronDown,
-  Shield 
-} from "lucide-react";
+import { Building2, Menu, X, User, LogOut } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import SignInModal from "./SignInModal";
-import SignUpModal from "./SignUpModal";
 import { useAuth } from "@/lib/AuthContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import SignInModal from "./SignInModal";
+import SignUpModal from "./SignUpModal";
 
 const Navigation = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
-  const { user, isAuthenticated, isAdmin, logout } = useAuth();
+  const { user, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    setIsMobileMenuOpen(false);
+  };
 
   const navItems = [
     { href: "/", label: "Home" },
     { href: "/apply", label: "Apply" },
     { href: "/download", label: "Download" },
   ];
-
-  // Add admin link if user is an admin
-  const userNavItems = isAuthenticated
-    ? isAdmin
-      ? [
-          { href: "/dashboard", label: "Dashboard" },
-          { href: "/admin", label: "Admin Panel" },
-        ]
-      : [{ href: "/dashboard", label: "Dashboard" }]
-    : [];
 
   const isActiveRoute = (href: string) => {
     if (href === "/") {
@@ -55,17 +39,17 @@ const Navigation = () => {
     return location.pathname.startsWith(href);
   };
 
-  const handleLogout = () => {
-    logout();
-  };
-
   return (
     <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <Building2 className="h-5 w-5 text-primary-foreground" />
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg">
+            <img
+              src="https://cdn.builder.io/api/v1/image/assets%2F6638b6e3f08849eb91b735b1c7b57266%2F6058fef7c7e349ea9850291fc20c0a96?format=webp&width=800"
+              alt="EIL Scholar Logo"
+              className="h-8 w-8 object-contain"
+            />
           </div>
           <span className="text-xl font-bold">EIL Scholar</span>
         </Link>
@@ -86,52 +70,35 @@ const Navigation = () => {
               {item.label}
             </Link>
           ))}
-          {userNavItems.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-primary",
-                isActiveRoute(item.href)
-                  ? "text-primary"
-                  : "text-muted-foreground",
-              )}
-            >
-              {item.label}
-            </Link>
-          ))}
         </div>
 
         {/* Desktop Auth Buttons */}
         <div className="hidden md:flex items-center space-x-3">
-          {isAuthenticated ? (
+          {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="flex items-center gap-2">
-                  <UserCircle className="h-4 w-4" />
-                  {user?.name}
-                  <ChevronDown className="h-4 w-4" />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <User className="h-4 w-4" />
+                  {user.user_metadata?.first_name || user.email?.split("@")[0]}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem disabled>{user.email}</DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <UserCircle className="mr-2 h-4 w-4" />
-                    <Link to="/dashboard">Profile</Link>
-                  </DropdownMenuItem>
-                  {isAdmin && (
-                    <DropdownMenuItem>
-                      <Shield className="mr-2 h-4 w-4" />
-                      <Link to="/admin">Admin Dashboard</Link>
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuGroup>
+                <DropdownMenuItem asChild>
+                  <Link to="/dashboard">Dashboard</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/apply">My Applications</Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -188,39 +155,20 @@ const Navigation = () => {
                   {item.label}
                 </Link>
               ))}
-              {userNavItems.map((item) => (
-                <Link
-                  key={item.href}
-                  to={item.href}
-                  className={cn(
-                    "text-sm font-medium transition-colors hover:text-primary px-2 py-1",
-                    isActiveRoute(item.href)
-                      ? "text-primary"
-                      : "text-muted-foreground",
-                  )}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              ))}
               <div className="flex flex-col space-y-2 pt-4 border-t">
-                {isAuthenticated ? (
+                {user ? (
                   <>
-                    <div className="flex items-center gap-2 px-2 py-2">
-                      <UserCircle className="h-5 w-5" />
-                      <div className="flex flex-col">
-                        <span className="font-medium">{user?.name}</span>
-                        <span className="text-xs text-muted-foreground">{user?.email}</span>
-                      </div>
+                    <div className="px-2 py-1 text-sm text-muted-foreground">
+                      {user.email}
                     </div>
                     <Button
-                      variant="outline"
+                      variant="ghost"
                       size="sm"
-                      onClick={handleLogout}
+                      onClick={handleSignOut}
                       className="justify-start"
                     >
                       <LogOut className="h-4 w-4 mr-2" />
-                      Log out
+                      Sign Out
                     </Button>
                   </>
                 ) : (

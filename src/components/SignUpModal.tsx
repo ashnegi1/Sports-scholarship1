@@ -49,6 +49,7 @@ const SignUpModal = ({
     "Chemical Engineering",
     "Civil Engineering",
     "Computer Science Engineering",
+    "Information Technology",
     "Electrical Engineering",
     "Electronics Engineering",
     "Mechanical Engineering",

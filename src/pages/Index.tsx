@@ -64,7 +64,7 @@ const Index = () => {
     {
       name: "Priya Sharma",
       field: "Civil Engineering",
-      university: "NIT Jalandhar",
+      university: "NIT Trichy",
       quote:
         "Thanks to EIL's support, I completed my Masters in Infrastructure Engineering and joined their project management team.",
       rating: 5,
@@ -115,7 +115,7 @@ const Index = () => {
         <div className="container relative">
           <div className="mx-auto max-w-4xl text-center">
             <h1 className="text-4xl font-bold tracking-tight text-foreground lg:text-6xl">
-              Sports Excellence Meets
+              Engineering Excellence Meets
               <span className="text-primary"> Educational Opportunity</span>
             </h1>
             <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto">
@@ -233,13 +233,17 @@ const Index = () => {
         <div className="container">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <Link to="/" className="flex items-center space-x-2 mb-4 md:mb-0">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-                <Building2 className="h-5 w-5 text-primary-foreground" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg">
+                <img
+                  src="https://cdn.builder.io/api/v1/image/assets%2F6638b6e3f08849eb91b735b1c7b57266%2F6058fef7c7e349ea9850291fc20c0a96?format=webp&width=800"
+                  alt="EIL Scholar Logo"
+                  className="h-8 w-8 object-contain"
+                />
               </div>
               <span className="text-xl font-bold">EIL Scholar</span>
             </Link>
             <div className="text-center text-sm text-muted-foreground">
-              <p>&copy; 2025 Engineers India Limited. All rights reserved.</p>
+              <p>&copy; 2024 Engineers India Limited. All rights reserved.</p>
             </div>
           </div>
         </div>
