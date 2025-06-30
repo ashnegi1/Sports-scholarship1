@@ -243,7 +243,7 @@ const Index = () => {
               <span className="text-xl font-bold">EIL Scholar</span>
             </Link>
             <div className="text-center text-sm text-muted-foreground">
-              <p>&copy; 2024 Engineers India Limited. All rights reserved.</p>
+              <p>&copy; 2025 Engineers India Limited. All rights reserved.</p>
             </div>
           </div>
         </div>
