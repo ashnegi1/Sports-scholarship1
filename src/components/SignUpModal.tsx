@@ -112,8 +112,12 @@ const SignUpModal = ({
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-3">
           <div className="flex items-center justify-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary">
-              <Building2 className="h-6 w-6 text-primary-foreground" />
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg ">
+              <img
+                src="https://cdn.builder.io/api/v1/image/assets%2F6638b6e3f08849eb91b735b1c7b57266%2F6058fef7c7e349ea9850291fc20c0a96?format=webp&width=800"
+                alt="EIL Scholar Logo"
+                className="h-12 w-12 object-contain"
+              />
             </div>
           </div>
           <DialogTitle className="text-center text-2xl">
