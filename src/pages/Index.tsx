@@ -116,7 +116,7 @@ const Index = () => {
   style={{ backgroundImage: "url('src/pages/eil .jpg')" }}
 >
   {/* Dark transparent overlay */}
-  <div className="absolute inset-0 bg-black bg-opacity-60 z-0" />
+  <div className="absolute inset-0 bg-black bg-opacity-70 z-0" />
 
   {/* Actual content */}
   <div className="container relative z-10">
