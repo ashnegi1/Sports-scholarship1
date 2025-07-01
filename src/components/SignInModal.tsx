@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import {
   Dialog,
@@ -31,32 +32,33 @@ const SignInModal = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const { signIn } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError("");
 
-    try {
-      const result = await signIn(formData.email, formData.password);
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsLoading(true);
+  setError("");
 
-      if (result.success) {
-        // Successful login
-        onClose();
-        setFormData({
-          email: "shreyansjaiswal2005@gmail.com",
-          password: "jaiswal12345",
-        });
-      } else {
-        // Show error message
-        setError(result.error || "Invalid email or password");
-      }
-    } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
-    } finally {
-      setIsLoading(false);
+  try {
+    const result = await signIn(formData.email, formData.password);
+
+    if (result.success) {
+      onClose();               // Close modal
+      navigate("/apply");      // ✅ Redirect to apply page
+      setFormData({
+        email: "shreyansjaiswal2005@gmail.com",
+        password: "jaiswal12345",
+      });
+    } else {
+      setError(result.error || "Invalid email or password");
     }
-  };
+  } catch (err) {
+    setError("An unexpected error occurred. Please try again.");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
