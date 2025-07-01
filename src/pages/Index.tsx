@@ -211,22 +211,33 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-primary">
-        <div className="container">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight text-primary-foreground lg:text-4xl">
-              Ready to Start Your Journey?
-            </h2>
-            <p className="mt-4 text-lg text-primary-foreground/80">
-              Apply for engineering scholarships with Engineers India Limited.
-            </p>
-            <div className="mt-8">
+  {/* CTA Section - EIL Style */}
+        <section className="py-16 bg-gradient-to-r from-blue-600 to-blue-500">
+          <div className="container">
+            <div className="flex items-center justify-between max-w-6xl mx-auto">
+              {/* EIL Logo on the left */}
+              <div className="flex-shrink-0 mr-16">
+                <div className="bg-white rounded-lg p-4 shadow-lg">
+                  <img
+                    src="https://cdn.builder.io/api/v1/image/assets%2F6638b6e3f08849eb91b735b1c7b57266%2F8acc8f463f504829a092660b0a2175c8?format=webp&width=800"
+                    alt="Engineers India Limited Logo"
+                    className="h-20 w-auto object-contain"
+                  />
+                </div>
+              </div>
+
+            {/* Content on the right */}
+            <div className="flex-1 text-center">
+              <h2 className="text-3xl font-bold tracking-tight text-white lg:text-4xl mb-4">
+                Ready to Start Your Journey?
+              </h2>
+              <p className="text-lg text-white/90 mb-8 max-w-lg mx-auto">
+                Apply for engineering scholarships with Engineers India Limited.
+              </p>
               <Button
                 size="lg"
-                variant="secondary"
                 asChild
-                className="bg-white text-primary hover:bg-gray-100"
+                className="bg-white text-blue-600 hover:bg-gray-100 px-8 py-3 text-base font-semibold shadow-lg"
               >
                 <Link to="/apply">
                   Apply Now <ArrowRight className="ml-2 h-4 w-4" />
