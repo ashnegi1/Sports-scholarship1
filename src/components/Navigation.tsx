@@ -19,11 +19,20 @@ const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
 
   const handleSignOut = async () => {
-    await logout();
-    setIsMobileMenuOpen(false);
+    try {
+      await signOut();
+      setIsMobileMenuOpen(false);
+      // Force page reload to ensure clean state
+      window.location.reload();
+    } catch (error) {
+      console.error("Sign out error:", error);
+      // Force sign out even if there's an error
+      localStorage.removeItem("mockUser");
+      window.location.reload();
+    }
   };
 
   const navItems = [

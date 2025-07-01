@@ -47,8 +47,6 @@ const SignInModal = ({
           email: "shreyansjaiswal2005@gmail.com",
           password: "jaiswal12345",
         });
-        // Show success message
-        alert("Welcome back! You have successfully signed in.");
       } else {
         // Show error message
         setError(result.error || "Invalid email or password");

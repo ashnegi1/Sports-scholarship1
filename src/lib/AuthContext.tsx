@@ -11,8 +11,9 @@ interface AuthContextType {
     password: string,
   ) => Promise<{ success: boolean; error?: string }>;
   signUp: (data: any) => Promise<{ success: boolean; error?: string }>;
-  signOut: () => Promise<void>;
+  signOut: () => Promise<void>; // ✅ Rename this
 }
+
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
