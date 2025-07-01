@@ -11,8 +11,8 @@ const SignInPage = () => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <SignInModal
-        isOpen={true}
-        onClose={() => {}}
+         isOpen={true}
+        onClose={() => navigate(-1)}
         onSwitchToSignUp={() => {}}
         redirectTo={from} // <-- pass it to modal
       />
