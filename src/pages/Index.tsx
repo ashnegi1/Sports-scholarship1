@@ -111,24 +111,31 @@ const Index = () => {
       <Navigation />
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-gray-900 to-black py-20 lg:py-32">
-        <div className="container relative">
-          <div className="mx-auto max-w-4xl text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-foreground lg:text-6xl">
-              Sports Excellence Meets
-              <span className="text-primary"> Educational Opportunity</span>
-            </h1>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground max-w-2xl mx-auto">
-              Engineers India Limited proudly supports exceptional engineering
-              students through comprehensive scholarship programs and career
-              development opportunities.
-            </p>
-            <div className="mt-10 flex items-center justify-center gap-4 flex-wrap">
-              <Button
-                asChild
-                size="lg"
-                className="bg-primary hover:bg-primary/90"
-              >
+      <section
+  className="relative overflow-hidden bg-gradient-to-br from-gray-900 to-black py-20 lg:py-32 bg-cover bg-center"
+  style={{ backgroundImage: "url(EILggnpic.jpg)" }}
+>
+  <div className="absolute inset-0 bg-black opacity-50 z-0" /> {/* Optional overlay for contrast */}
+
+  <div className="container relative z-10">
+    <div className="mx-auto max-w-4xl text-center">
+      <h1 className="text-4xl font-bold tracking-tight text-foreground lg:text-6xl">
+        Sports Excellence Meets
+        <span className="text-primary"> Educational Opportunity</span>
+      </h1>
+      <p className="mt-6 text-lg leading-8 text-foreground max-w-2xl mx-auto">
+       Engineers India Limited proudly supports exceptional engineering
+        students through comprehensive scholarship programs and career
+        development opportunities.
+      </p>
+      <div className="mt-10 flex items-center justify-center gap-4 flex-wrap">
+        <Button
+          asChild
+          size="lg"
+          className="bg-primary hover:bg-primary/90"
+        >
+          {/* Your button code continues here */}
+
                 <Link to="/apply">
                   Apply for Scholarship <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
