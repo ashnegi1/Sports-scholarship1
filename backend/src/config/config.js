@@ -19,7 +19,7 @@ console.log(`MONGODB_URI: ${process.env.MONGODB_URI ? '(Using provided URI)' : '
 module.exports = {
   // Use an uncommon port to avoid conflicts
   PORT: process.env.PORT || 7777,
-  MONGODB_URI: process.env.MONGODB_URI || 'mongodb+srv://sahnikush267:EIL@12345@cluster0.2vipzio.mongodb.net/sports_scholarship',
+  MONGODB_URI: process.env.MONGODB_URI || 'mongodb://localhost:27017/sports_scholarship',
   JWT_SECRET: process.env.JWT_SECRET || 'fallback_jwt_secret_key',
   JWT_EXPIRE: process.env.JWT_EXPIRE || '30d',
   // Set to false to use real MongoDB instance

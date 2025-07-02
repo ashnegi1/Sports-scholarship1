@@ -78,6 +78,53 @@ const Apply = () => {
     documents: [] as File[],
   });
 
+  const validateCurrentStep = (): boolean => {
+    switch (currentStep) {
+      case 1:
+        return (
+          !!formData.title &&
+          !!formData.firstName &&
+          !!formData.lastName &&
+          !!formData.fatherName &&
+          !!formData.motherName &&
+          !!formData.dateOfBirth &&
+          !!formData.mobileNumber &&
+          !!formData.emailId &&
+          !!formData.addressLine1 &&
+          !!formData.city &&
+          !!formData.state &&
+          !!formData.postalCode &&
+          !!formData.nationalId
+        );
+      case 2:
+        return (
+          !!formData.highestExamPassed &&
+          !!formData.yearOfPassing &&
+          !!formData.schoolUniversityName &&
+          !!formData.institutionType
+        );
+      case 3:
+        return (
+          !!formData.engineeringField &&
+          !!formData.typeOfSports &&
+          !!formData.SportsType &&
+          !!formData.SportsName &&
+          !!formData.positionLevel &&
+          !!formData.resultMetrics &&
+          !!formData.TournamentDate
+        );
+      case 4:
+        return (
+          !!uploadedDocs.photograph &&
+          !!uploadedDocs.signature &&
+          !!uploadedDocs.proofOfAge &&
+          !!uploadedDocs.nationalIdCopy
+        );
+      default:
+        return true;
+    }
+  };
+
   const [uploadedDocs, setUploadedDocs] = useState({
     photograph: null as File | null,
     signature: null as File | null,
@@ -190,7 +237,14 @@ const Apply = () => {
     }, 2000);
   };
 
-  const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, 5));
+  const nextStep = () => {
+  if (!validateCurrentStep()) {
+    alert("Please fill all required (*) fields before continuing.");
+    return;
+  }
+  setCurrentStep((prev) => Math.min(prev + 1, 5));
+};
+
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
   const getProgress = () => (currentStep / 5) * 100;
