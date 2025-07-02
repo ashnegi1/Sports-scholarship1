@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config();
 const config = require('./config/config');
 const errorHandler = require('./middleware/error');
 const { startMongoMemoryServer } = require('./setup-mongo-memory');
@@ -19,10 +18,10 @@ app.use(express.json());
 
 // Enable CORS with more permissive settings for development
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:8081', 'http://localhost:8080','http://127.0.0.1:8081'],
+  origin: '*', // Allow all origins for development
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
 // Mount routers
@@ -31,7 +30,12 @@ app.use('/api/applications', applicationRoutes);
 
 // Simple route for testing
 app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to Sports Scholarship API' });
+  res.json({ message: 'Welcome to Sports Scholarship API', status: 'online' });
+});
+
+// Heartbeat endpoint to check if server is alive
+app.get('/health', (req, res) => {
+  res.json({ status: 'healthy', uptime: process.uptime() });
 });
 
 // Error handler middleware
@@ -113,11 +117,25 @@ const connectDB = async () => {
     } else {
       // Connect to regular MongoDB instance
       console.log(`Attempting to connect to MongoDB at: ${config.MONGODB_URI}`);
-      const conn = await mongoose.connect(config.MONGODB_URI);
-      console.log(`MongoDB Connected: ${conn.connection.host}`);
-      
-      // Also seed the regular database if needed
-      await seedDefaultUsers();
+      try {
+        const conn = await mongoose.connect(config.MONGODB_URI, {
+          serverSelectionTimeoutMS: 10000, // 10 seconds
+          socketTimeoutMS: 45000, // 45 seconds
+        });
+        console.log(`MongoDB Connected: ${conn.connection.host}`);
+        
+        // Also seed the regular database if needed
+        await seedDefaultUsers();
+      } catch (mongoError) {
+        console.error('Failed to connect to MongoDB:', mongoError.message);
+        console.log('Falling back to MongoDB Memory Server');
+        
+        const { mongoUri } = await startMongoMemoryServer();
+        console.log(`MongoDB Memory Server URI: ${mongoUri}`);
+        
+        // Seed the database with default users
+        await seedDefaultUsers();
+      }
     }
   } catch (error) {
     console.error(`Error during database connection: ${error.message}`);
@@ -132,8 +150,11 @@ const startServer = async () => {
   await connectDB();
   
   const PORT = config.PORT;
-  const server = app.listen(PORT, () => {
+  const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(`Server accessible at http://localhost:${PORT}`);
+    console.log(`Health check available at http://localhost:${PORT}/health`);
+    console.log(`API endpoints at http://localhost:${PORT}/api/*`);
   });
   
   // Handle unhandled promise rejections

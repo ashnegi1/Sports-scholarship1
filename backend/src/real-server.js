@@ -5,6 +5,7 @@ const config = require('./config/config');
 const authRoutes = require('./routes/auth');
 const applicationRoutes = require('./routes/applications');
 const errorHandler = require('./middleware/error');
+const corsMiddleware = require('./middleware/cors');
 
 // Initialize app
 const app = express();
@@ -12,13 +13,20 @@ const app = express();
 // Body parser
 app.use(express.json());
 
-// Enable CORS
+// Apply custom CORS middleware first
+app.use(corsMiddleware);
+
+// Enable CORS - allow all origins for development
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:8080', 'http://127.0.0.1:8080', 'http://localhost:8081', 'http://127.0.0.1:8081', 'http://localhost:8082', 'http://127.0.0.1:8082'],
+  origin: '*', // Allow all origins
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Access-Control-Allow-Origin']
 }));
+
+// Add pre-flight options for all routes
+app.options('*', cors());
 
 // Mount routers
 app.use('/api/auth', authRoutes);
@@ -27,6 +35,11 @@ app.use('/api/applications', applicationRoutes);
 // Simple route for testing
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to Sports Scholarship API (Real MongoDB)' });
+});
+
+// Health check route
+app.get('/health', (req, res) => {
+  res.json({ status: 'healthy', uptime: process.uptime() });
 });
 
 // Error handler middleware
@@ -60,9 +73,12 @@ const startServer = async () => {
     
     // Start Express server
     const PORT = config.PORT;
-    app.listen(PORT, () => {
+    app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running on port ${PORT}`);
-      console.log(`MongoDB URI: ${config.MONGODB_URI}`);
+      console.log(`Server accessible at http://localhost:${PORT}`);
+      console.log(`Test endpoint at http://localhost:${PORT}/health`);
+      console.log(`API endpoints at http://localhost:${PORT}/api/*`);
+      console.log('CORS enabled for all origins');
     });
   } catch (error) {
     console.error('Failed to start server:', error);
