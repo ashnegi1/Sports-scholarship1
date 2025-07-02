@@ -1,8 +1,19 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { MockAuthService, MockUser } from "@/lib/mockAuth";
+import authService from "./api/authService";
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  phone?: string;
+  college?: string;
+  engineeringField?: string;
+  yearOfStudy?: string;
+}
 
 interface AuthContextType {
-  user: MockUser | null;
+  user: User | null;
   loading: boolean;
   isAuthenticated: boolean;
   isAdmin: boolean;
@@ -11,37 +22,39 @@ interface AuthContextType {
     password: string,
   ) => Promise<{ success: boolean; error?: string }>;
   signUp: (data: any) => Promise<{ success: boolean; error?: string }>;
-  signOut: () => Promise<void>; // ✅ Rename this
+  signOut: () => Promise<void>;
 }
-
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<MockUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     // Check for existing user session on mount
-    const currentUser = MockAuthService.getCurrentUser();
-    setUser(currentUser);
+    const storedUser = localStorage.getItem('auth_user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
     setLoading(false);
   }, []);
 
   const signIn = async (email: string, password: string) => {
     setLoading(true);
     try {
-      const result = await MockAuthService.signIn(email, password);
+      const result = await authService.login(email, password);
       if (result.success && result.user) {
         setUser(result.user);
+        return { success: true };
       }
       setLoading(false);
       return result;
-    } catch (error) {
+    } catch (error: any) {
       setLoading(false);
       return {
         success: false,
-        error: "An unexpected error occurred",
+        error: error.message || "An unexpected error occurred",
       };
     }
   };
@@ -54,33 +67,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     college: string;
     engineeringField: string;
     phone: string;
+    yearOfStudy: string;
   }) => {
     setLoading(true);
     try {
-      const result = await MockAuthService.signUp(data);
+      const userData = {
+        email: data.email,
+        password: data.password,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        college: data.college || '',
+        engineeringField: data.engineeringField || '',
+        phone: data.phone || '',
+        yearOfStudy: data.yearOfStudy || ''
+      };
+      
+      const result = await authService.register(userData);
       if (result.success && result.user) {
         setUser(result.user);
+        return { success: true };
       }
       setLoading(false);
       return result;
-    } catch (error) {
+    } catch (error: any) {
       setLoading(false);
       return {
         success: false,
-        error: "An unexpected error occurred",
+        error: error.message || "An unexpected error occurred",
       };
     }
   };
 
   const signOut = async () => {
     setLoading(true);
-    await MockAuthService.signOut();
+    authService.logout();
     setUser(null);
     setLoading(false);
   };
 
   const isAuthenticated = !!user;
-  const isAdmin = MockAuthService.isAdmin(user);
+  const isAdmin = user?.role === 'admin';
 
   return (
     <AuthContext.Provider

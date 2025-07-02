@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Building2, Eye, EyeOff, Upload } from "lucide-react";
+import { Building2, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
 
 interface SignUpModalProps {
   isOpen: boolean;
@@ -30,89 +32,103 @@ const SignUpModal = ({
   onSwitchToSignIn,
 }: SignUpModalProps) => {
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
     email: "",
+    password: "",
+    confirmPassword: "",
     phone: "",
     college: "",
     engineeringField: "",
-    yearOfStudy: "",
-    password: "",
-    confirmPassword: "",
+    yearOfStudy: "1st Year"
   });
-  const [documents, setDocuments] = useState<File[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+
+  const { signUp } = useAuth();
+  const navigate = useNavigate();
 
   const engineeringFields = [
-    "Chemical Engineering",
-    "Civil Engineering",
-    "Computer Science Engineering",
-    "Information Technology",
-    "Electrical Engineering",
-    "Electronics Engineering",
+    "Computer Science",
     "Mechanical Engineering",
-    "Process Engineering",
+    "Electrical Engineering",
+    "Civil Engineering",
+    "Chemical Engineering",
+    "Aerospace Engineering",
+    "Biomedical Engineering",
     "Environmental Engineering",
-    "Instrumentation Engineering",
-    "Other",
+    "Other"
   ];
 
   const studyYears = [
     "1st Year",
-    "2nd Year",
+    "2nd Year", 
     "3rd Year",
     "4th Year",
-    "Final Year",
+    "5th Year",
+    "Graduated"
   ];
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
-
-    setIsLoading(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      // Handle successful registration here
-      console.log("Sign up attempted with:", formData);
-      console.log("Documents uploaded:", documents);
-      onClose();
-    }, 1500);
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+    // Clear error when user starts typing
+    if (error) setError("");
   };
 
-  const handleSelectChange = (name: string) => (value: string) => {
+  const handleSelectChange = (name: string, value: string) => {
     setFormData({
       ...formData,
       [name]: value,
     });
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setDocuments(Array.from(e.target.files));
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError("");
+
+    // Basic validation
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const result = await signUp({
+        email: formData.email,
+        password: formData.password,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        college: formData.college,
+        engineeringField: formData.engineeringField,
+        phone: formData.phone,
+        yearOfStudy: formData.yearOfStudy
+      });
+
+      if (result.success) {
+        onClose();
+        navigate("/apply");
+      } else {
+        setError(result.error || "Registration failed. Please try again.");
+      }
+    } catch (err) {
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-3">
           <div className="flex items-center justify-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg ">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg">
               <img
                 src="https://cdn.builder.io/api/v1/image/assets%2F6638b6e3f08849eb91b735b1c7b57266%2F6058fef7c7e349ea9850291fc20c0a96?format=webp&width=800"
                 alt="EIL Scholar Logo"
@@ -121,36 +137,39 @@ const SignUpModal = ({
             </div>
           </div>
           <DialogTitle className="text-center text-2xl">
-            Join EIL Scholar
+            Create an Account
           </DialogTitle>
           <DialogDescription className="text-center">
-            Create your account to access engineering scholarships and
-            opportunities
+            Sign up for an EIL Scholar account to apply for engineering scholarships
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Personal Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {error && (
+            <div className="flex items-center gap-2 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
+              <AlertCircle className="h-4 w-4" />
+              {error}
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="firstName">First Name *</Label>
+              <Label htmlFor="firstName">First Name</Label>
               <Input
                 id="firstName"
                 name="firstName"
-                type="text"
-                placeholder="Enter your first name"
+                placeholder="Enter first name"
                 value={formData.firstName}
                 onChange={handleInputChange}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name *</Label>
+              <Label htmlFor="lastName">Last Name</Label>
               <Input
                 id="lastName"
                 name="lastName"
-                type="text"
-                placeholder="Enter your last name"
+                placeholder="Enter last name"
                 value={formData.lastName}
                 onChange={handleInputChange}
                 required
@@ -159,12 +178,12 @@ const SignUpModal = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email Address *</Label>
+            <Label htmlFor="email">Email Address</Label>
             <Input
               id="email"
               name="email"
               type="email"
-              placeholder="Enter your email address"
+              placeholder="Enter your email"
               value={formData.email}
               onChange={handleInputChange}
               required
@@ -172,163 +191,107 @@ const SignUpModal = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number *</Label>
+            <Label htmlFor="phone">Phone Number</Label>
             <Input
               id="phone"
               name="phone"
-              type="tel"
-              placeholder="+91 XXXXX XXXXX"
+              placeholder="Enter your phone number"
               value={formData.phone}
               onChange={handleInputChange}
-              required
             />
           </div>
 
-          {/* Academic Information */}
           <div className="space-y-2">
-            <Label htmlFor="college">College/University *</Label>
+            <Label htmlFor="college">College/University</Label>
             <Input
               id="college"
               name="college"
-              type="text"
-              placeholder="Enter your college or university name"
+              placeholder="Enter your institution"
               value={formData.college}
               onChange={handleInputChange}
-              required
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="engineeringField">Engineering Field *</Label>
-              <Select onValueChange={handleSelectChange("engineeringField")}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select your field" />
-                </SelectTrigger>
-                <SelectContent>
-                  {engineeringFields.map((field) => (
-                    <SelectItem key={field} value={field}>
-                      {field}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="yearOfStudy">Year of Study *</Label>
-              <Select onValueChange={handleSelectChange("yearOfStudy")}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select year" />
-                </SelectTrigger>
-                <SelectContent>
-                  {studyYears.map((year) => (
-                    <SelectItem key={year} value={year}>
-                      {year}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          {/* Document Upload */}
           <div className="space-y-2">
-            <Label htmlFor="documents">Academic Documents (Optional)</Label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-              <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-              <Label htmlFor="documents" className="cursor-pointer">
-                <span className="text-sm text-muted-foreground">
-                  Upload transcripts, certificates, or other academic documents
-                </span>
-                <Input
-                  id="documents"
-                  type="file"
-                  multiple
-                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-              </Label>
-              {documents.length > 0 && (
-                <div className="mt-2 text-sm text-primary">
-                  {documents.length} file(s) selected
-                </div>
-              )}
-            </div>
+            <Label htmlFor="engineeringField">Engineering Field</Label>
+            <Select
+              value={formData.engineeringField}
+              onValueChange={(value) => handleSelectChange("engineeringField", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select engineering field" />
+              </SelectTrigger>
+              <SelectContent>
+                {engineeringFields.map((field) => (
+                  <SelectItem key={field} value={field}>
+                    {field}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          {/* Password */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="password">Password *</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  name="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Create a password"
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  required
-                />
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password *</Label>
-              <div className="relative">
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Confirm your password"
-                  value={formData.confirmPassword}
-                  onChange={handleInputChange}
-                  required
-                />
-                <button
-                  type="button"
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </button>
-              </div>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="yearOfStudy">Year of Study</Label>
+            <Select
+              value={formData.yearOfStudy}
+              onValueChange={(value) => handleSelectChange("yearOfStudy", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select year of study" />
+              </SelectTrigger>
+              <SelectContent>
+                {studyYears.map((year) => (
+                  <SelectItem key={year} value={year}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          {/* Terms and Conditions */}
-          <div className="flex items-start space-x-2">
-            <input
-              type="checkbox"
-              id="terms"
-              className="mt-1 rounded border-gray-300"
-              required
-            />
-            <Label htmlFor="terms" className="text-sm">
-              I agree to the{" "}
-              <Button variant="link" className="p-0 h-auto text-sm">
-                Terms of Service
-              </Button>{" "}
-              and{" "}
-              <Button variant="link" className="p-0 h-auto text-sm">
-                Privacy Policy
-              </Button>
-            </Label>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <div className="relative">
+              <Input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                placeholder="Create a password"
+                value={formData.password}
+                onChange={handleInputChange}
+                required
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Password must be at least 8 characters with a mix of uppercase, lowercase, numbers, and symbols.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showPassword ? "text" : "password"}
+                placeholder="Confirm your password"
+                value={formData.confirmPassword}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
           </div>
 
           <Button type="submit" className="w-full" disabled={isLoading}>
