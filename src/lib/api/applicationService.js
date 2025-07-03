@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5002/api/applications';
+// API URL with port 7777 as specified in the backend config.js
+const API_URL = 'http://localhost:7777/api/applications';
 
 // Create axios instance with base config
 const api = axios.create({
