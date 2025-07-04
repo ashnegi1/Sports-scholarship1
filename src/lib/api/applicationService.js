@@ -67,6 +67,79 @@ const submitApplication = async (applicationData) => {
   }
 };
 
+// Upload documents for an application
+const uploadDocuments = async (applicationId, documents, documentType = 'supporting') => {
+  try {
+    // Debug information
+    console.log(`Starting document upload for application: ${applicationId}`);
+    console.log(`Document type: ${documentType}`);
+    console.log(`Documents to upload:`, Array.isArray(documents) ? `${documents.length} files` : '1 file');
+    
+    // Get auth token directly
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      throw new Error('No authentication token found');
+    }
+    
+    // Create form data for file upload - must use FormData for files
+    const formData = new FormData();
+    
+    // Handle single file or array of files
+    if (Array.isArray(documents)) {
+      // Add multiple files to the same field name 'documents'
+      documents.forEach((doc, index) => {
+        console.log(`Appending file ${index + 1}/${documents.length}: ${doc.name}, size: ${doc.size} bytes, type: ${doc.type}`);
+        formData.append('documents', doc);
+      });
+    } else if (documents instanceof File) {
+      // Add single file
+      console.log(`Appending single file: ${documents.name}, size: ${documents.size} bytes, type: ${documents.type}`);
+      formData.append('documents', documents);
+    } else {
+      console.error('Invalid document format:', documents);
+      throw new Error('Invalid document format');
+    }
+    
+    // Add document type
+    formData.append('documentType', documentType);
+    
+    // For debugging: log the FormData contents (note: can't directly log FormData contents)
+    console.log('FormData created with documentType:', documentType);
+    
+    // Use fetch API instead of axios for better FormData support
+    const url = `${API_URL}/${applicationId}/documents`;
+    console.log(`Making request to: ${url}`);
+    
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        // Don't set Content-Type with FormData, browser will set it with boundary
+        'Authorization': `Bearer ${token}`
+      },
+      body: formData
+    });
+    
+    // Check if the response is ok
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error(`Server error ${response.status}: ${errorData.message || response.statusText}`);
+      throw new Error(errorData.message || `Upload failed with status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    console.log('Upload successful, response:', data);
+    return data;
+  } catch (error) {
+    console.error("Upload documents error:", error);
+    if (error.response) {
+      console.error("Response data:", error.response.data);
+      console.error("Response status:", error.response.status);
+      console.error("Response headers:", error.response.headers);
+    }
+    throw new Error(error.message || 'Failed to upload documents');
+  }
+};
+
 // Update application status (admin only)
 const updateApplicationStatus = async (id, status, comments = '') => {
   try {
@@ -99,6 +172,7 @@ const applicationService = {
   getAllApplications,
   getUserApplications,
   submitApplication,
+  uploadDocuments,
   updateApplicationStatus,
   getApplicationById
 };

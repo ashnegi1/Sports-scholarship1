@@ -27,8 +27,8 @@ exports.protect = async (req, res, next) => {
     // Verify token
     const decoded = jwt.verify(token, config.JWT_SECRET);
 
-    // Find user from the decoded token
-    req.user = await User.findById(decoded.id);
+    // Find user from the decoded token and select necessary fields
+    req.user = await User.findById(decoded.id).select('_id email name role');
 
     if (!req.user) {
       return res.status(401).json({
@@ -37,8 +37,17 @@ exports.protect = async (req, res, next) => {
       });
     }
 
+    // Log the user object for debugging
+    console.log('User authenticated:', {
+      id: req.user._id,
+      email: req.user.email,
+      name: req.user.name,
+      role: req.user.role
+    });
+
     next();
   } catch (error) {
+    console.error('Authentication error:', error.message);
     return res.status(401).json({
       success: false,
       message: 'Not authorized to access this route'

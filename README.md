@@ -1,4 +1,4 @@
-Here’s a **professional README** for your **Sports Scholarship App** built using **Vite, React, and TypeScript**:
+Here's a **professional README** for your **Sports Scholarship App** built using **Vite, React, and TypeScript**:
 
 ---
 
@@ -14,6 +14,7 @@ The **Sports Scholarship App** is a web-based platform built with **Vite**, **Re
 * 🏅 Admin dashboard to verify applicants
 * 📄 Upload and review sports achievement documents
 * 🔒 Secure and user-friendly UI built with modern React stack
+* 📎 Document upload for supporting achievements and credentials
 
 ## 🛠️ Tech Stack
 
@@ -23,6 +24,7 @@ The **Sports Scholarship App** is a web-based platform built with **Vite**, **Re
 * **Styling:** Tailwind CSS (optional)
 * **Routing:** React Router
 * **Form Handling:** React Hook Form (recommended)
+* **File Upload:** Multer (backend)
 
 ## 📦 Installation
 
@@ -45,6 +47,44 @@ src/
 └── App.tsx           # Main app component
 ```
 
+## 📄 Document Upload API
+
+The application supports document uploads for verifying sports achievements and academic credentials.
+
+### API Endpoints
+
+| Endpoint | Method | Description | Parameters |
+|----------|--------|-------------|------------|
+| `/api/applications/:id/documents` | POST | Upload documents for an application | `documents`: Files (max 5), `documentType`: Type of document |
+| `/api/applications/:id/documents/:docId` | GET | Retrieve a specific document | None |
+| `/api/applications/:id/documents/:docId` | DELETE | Delete a document | None |
+
+### Supported Document Types
+
+- PDF files (application/pdf)
+- Images (image/jpeg, image/png)
+- Word documents (.doc, .docx)
+- Excel spreadsheets (.xls, .xlsx)
+
+### Example Usage
+
+```javascript
+// Upload documents example
+const formData = new FormData();
+formData.append('documents', fileInput.files[0]);
+formData.append('documentType', 'certificate');
+
+fetch('/api/applications/:id/documents', {
+  method: 'POST',
+  body: formData,
+  headers: {
+    'Authorization': 'Bearer YOUR_TOKEN'
+  }
+})
+.then(response => response.json())
+.then(data => console.log(data));
+```
+
 ## ✨ Future Scope
 
 * Add email notification for application status
@@ -54,7 +94,7 @@ src/
 
 ## 🤝 Contributing
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you’d like to change.
+Pull requests are welcome. For major changes, please open an issue first to discuss what you'd like to change.
 
 ## 📄 License
 

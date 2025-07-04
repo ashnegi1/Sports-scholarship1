@@ -319,9 +319,81 @@ const Apply = () => {
       
       console.log("Sending application data:", applicationData);
       
+      // First, submit the application to get the application ID
       const result = await applicationService.submitApplication(applicationData);
       
-      console.log("Submission successful, response:", result);
+      console.log("Application submission successful:", result);
+      
+      // Get application ID from the response
+      if (!result.data || (!result.data._id && !result.data.id)) {
+        console.error("Invalid response format:", result);
+        throw new Error('Application ID not returned from server');
+      }
+      
+      const applicationId = result.data._id || result.data.id;
+      console.log("Application ID:", applicationId);
+      
+      // Debug uploaded documents state
+      console.log("Available documents:", Object.keys(uploadedDocs).filter(key => {
+        const doc = uploadedDocs[key as keyof typeof uploadedDocs];
+        return doc && (doc instanceof File || (Array.isArray(doc) && doc.length > 0));
+      }));
+      
+      // Now upload each document with its type
+      const documentUploads = [];
+      
+      // Required documents
+      const requiredDocs = [
+        { field: 'photograph', type: 'photograph' },
+        { field: 'signature', type: 'signature' },
+        { field: 'proofOfAge', type: 'proof_of_age' },
+        { field: 'nationalIdCopy', type: 'national_id' }
+      ];
+      
+      // Upload required documents one by one
+      for (const doc of requiredDocs) {
+        const file = uploadedDocs[doc.field as keyof typeof uploadedDocs];
+        if (file && file instanceof File) {
+          try {
+            console.log(`Uploading ${doc.field} (${file.name})...`);
+            await applicationService.uploadDocuments(applicationId, file, doc.type);
+            documentUploads.push(doc.field);
+          } catch (error) {
+            console.error(`Error uploading ${doc.field}:`, error);
+            // Continue with other uploads even if one fails
+          }
+        } else {
+          console.log(`Skipping ${doc.field}, no file available`);
+        }
+      }
+      
+      // Optional certificate uploads (arrays of files)
+      const optionalDocs = [
+        { field: 'academicCertificates', type: 'academic_certificate' },
+        { field: 'projectCertificates', type: 'achievement_certificate' }
+      ];
+      
+      // Upload optional document arrays
+      for (const doc of optionalDocs) {
+        const files = uploadedDocs[doc.field as keyof typeof uploadedDocs] as File[];
+        if (Array.isArray(files) && files.length > 0) {
+          try {
+            console.log(`Uploading ${files.length} ${doc.field}...`);
+            // Upload one by one to better isolate errors
+            for (let i = 0; i < files.length; i++) {
+              console.log(`Uploading ${doc.field} file ${i + 1}/${files.length}: ${files[i].name}`);
+              await applicationService.uploadDocuments(applicationId, files[i], doc.type);
+            }
+            documentUploads.push(doc.field);
+          } catch (error) {
+            console.error(`Error uploading ${doc.field}:`, error);
+          }
+        } else {
+          console.log(`Skipping ${doc.field}, no files available`);
+        }
+      }
+      
+      console.log("Document uploads completed for:", documentUploads);
       
       setIsSubmitting(false);
       alert(
@@ -459,6 +531,7 @@ const Apply = () => {
                 id="dateOfBirth"
                 type="date"
                 value={formData.dateOfBirth}
+                max="2010-01-01"
                 onChange={handleInputChange("dateOfBirth")}
                 required
               />

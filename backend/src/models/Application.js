@@ -129,10 +129,18 @@ const ApplicationSchema = new mongoose.Schema({
     enum: ['pending', 'under_review', 'approved', 'rejected'],
     default: 'pending'
   },
-  documents: {
-    type: Number,
-    default: 0
-  },
+  documents: [{
+    fileName: String,
+    originalName: String,
+    fileType: String,
+    fileSize: Number,
+    path: String,
+    documentType: String,
+    uploadDate: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   comments: [{
     type: String,
     content: String,
