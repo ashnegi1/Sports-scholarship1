@@ -1,3 +1,4 @@
+
 import Navigation from "@/components/Navigation";
 import {
   Card,
@@ -41,7 +42,7 @@ import applicationService from "@/lib/api/applicationService";
 import { useAuth } from "@/lib/AuthContext";
 
 const Apply = () => {
-  const navigate = useNavigate();
+
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -235,6 +236,11 @@ const Apply = () => {
     // Simulate save
     setTimeout(() => setIsDraftSaved(false), 2000);
   };
+
+
+  const navigate = useNavigate();
+
+
 
   // Add declaration handler
   const handleDeclarationChange = (field: string) => (checked: boolean) => {
@@ -430,6 +436,7 @@ const Apply = () => {
       }
     }
   };
+
 
   const nextStep = () => {
   if (!validateCurrentStep()) {
