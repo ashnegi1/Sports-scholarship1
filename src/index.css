@@ -106,3 +106,7 @@
     color: hsl(var(--foreground));
   }
 }
+                  input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
