@@ -36,10 +36,14 @@ import {
   Save,
   Send,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import applicationService from "@/lib/api/applicationService";
+import { useAuth } from "@/lib/AuthContext";
 
 const Apply = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     // Basic Information
@@ -77,6 +81,12 @@ const Apply = () => {
 
     // Documents
     documents: [] as File[],
+  });
+
+  // Add declaration state
+  const [declarations, setDeclarations] = useState({
+    agreement: false,
+    terms: false,
   });
 
   const validateCurrentStep = (): boolean => {
@@ -227,6 +237,7 @@ const Apply = () => {
     setTimeout(() => setIsDraftSaved(false), 2000);
   };
 
+<<<<<<< HEAD
   const navigate = useNavigate();
 
   const submitApplication = () => {
@@ -246,6 +257,130 @@ const Apply = () => {
     navigate("/download");
   }, 2000);
 };
+=======
+  // Add declaration handler
+  const handleDeclarationChange = (field: string) => (checked: boolean) => {
+    setDeclarations({
+      ...declarations,
+      [field]: checked,
+    });
+  };
+
+  const submitApplication = async () => {
+    // Check if user is logged in
+    if (!user) {
+      alert("You must be logged in to submit an application. Please log in and try again.");
+      navigate("/signin");
+      return;
+    }
+
+    // Check declarations
+    if (!declarations.agreement || !declarations.terms) {
+      alert("Please agree to all declarations before submitting.");
+      return;
+    }
+
+    // Validate all steps before submitting
+    for (let step = 1; step <= 4; step++) {
+      setCurrentStep(step);
+      if (!validateCurrentStep()) {
+        alert(`Please complete all required fields in step ${step} before submitting.`);
+        return;
+      }
+    }
+    // Go back to the review step
+    setCurrentStep(5);
+
+    setIsSubmitting(true);
+    
+    try {
+      console.log("Preparing to submit application...");
+      
+      // Get token to verify it exists
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        console.error("No auth token found! User appears logged in but no token exists.");
+        alert("Authentication error. Please try logging out and back in.");
+        setIsSubmitting(false);
+        return;
+      }
+      console.log("Auth token exists:", token.substring(0, 10) + "...");
+      
+      // Convert the form data structure to match what backend expects
+      const applicationData = {
+        name: `${formData.title} ${formData.firstName} ${formData.middleName} ${formData.lastName}`.trim(),
+        email: formData.emailId,
+        mobile: formData.mobileNumber,
+        engineeringField: formData.engineeringField,
+        sportsType: formData.SportsType,
+        institution: formData.schoolUniversityName,
+        nationalId: formData.nationalId,
+        status: 'pending',
+        // Add all other fields as needed
+        title: formData.title,
+        firstName: formData.firstName,
+        middleName: formData.middleName,
+        lastName: formData.lastName,
+        fatherName: formData.fatherName,
+        motherName: formData.motherName,
+        dateOfBirth: formData.dateOfBirth,
+        addressLine1: formData.addressLine1,
+        addressLine2: formData.addressLine2,
+        city: formData.city,
+        state: formData.state,
+        postalCode: formData.postalCode,
+        highestExamPassed: formData.highestExamPassed,
+        yearOfPassing: formData.yearOfPassing,
+        institutionType: formData.institutionType,
+        scholarshipCategory: formData.scholarshipCategory,
+        SportsName: formData.SportsName,
+        positionLevel: formData.positionLevel,
+        resultMetrics: formData.resultMetrics,
+        TournamentDate: formData.TournamentDate
+      };
+      
+      console.log("Sending application data:", applicationData);
+      
+      const result = await applicationService.submitApplication(applicationData);
+      
+      console.log("Submission successful, response:", result);
+      
+      setIsSubmitting(false);
+      alert(
+        "Application submitted successfully! You will receive a confirmation email shortly.",
+      );
+      
+      // Optionally redirect to a confirmation page
+      // navigate('/application-submitted');
+    } catch (error: any) {
+      setIsSubmitting(false);
+      
+      // Detailed error logging
+      console.error("Error submitting application:", error);
+      
+      if (error.response) {
+        console.error("Server response:", error.response.data);
+        console.error("Status code:", error.response.status);
+        
+        // More specific error message based on status code
+        if (error.response.status === 401) {
+          alert("Authentication error. Please try logging out and back in.");
+        } else if (error.response.status === 400) {
+          alert(`Validation error: ${error.response.data.message || "Please check your form data."}`);
+        } else {
+          alert(`Server error (${error.response.status}): ${error.response.data.message || "Please try again."}`);
+        }
+      } else if (error.request) {
+        console.error("No response received:", error.request);
+        alert("No response from server. Please check if the backend server is running.");
+      } else {
+        alert(
+          `Error: ${error.message || "There was an error submitting your application. Please try again."}`
+        );
+      }
+    }
+  };
+>>>>>>> 4c9f3050c7f33501ae2a8ad8c0aa3676b84ba09e
 
   const nextStep = () => {
   if (!validateCurrentStep()) {
@@ -935,7 +1070,12 @@ const Apply = () => {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-start space-x-2">
-            <Checkbox id="declaration" required />
+            <Checkbox 
+              id="declaration" 
+              checked={declarations.agreement}
+              onCheckedChange={handleDeclarationChange("agreement")}
+              required 
+            />
             <Label htmlFor="declaration" className="text-sm">
               I declare that all the information provided is correct and true to
               the best of my knowledge. I understand that any false information
@@ -944,7 +1084,12 @@ const Apply = () => {
           </div>
 
           <div className="flex items-start space-x-2">
-            <Checkbox id="terms" required />
+            <Checkbox 
+              id="terms" 
+              checked={declarations.terms}
+              onCheckedChange={handleDeclarationChange("terms")}
+              required 
+            />
             <Label htmlFor="terms" className="text-sm">
               I agree to the Terms and Conditions and Privacy Policy of
               Engineers India Limited.
