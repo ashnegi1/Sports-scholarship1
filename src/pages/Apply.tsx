@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import {
   Card,
@@ -226,16 +227,25 @@ const Apply = () => {
     setTimeout(() => setIsDraftSaved(false), 2000);
   };
 
+  const navigate = useNavigate();
+
   const submitApplication = () => {
-    setIsSubmitting(true);
-    // Simulate submission
-    setTimeout(() => {
-      setIsSubmitting(false);
-      alert(
-        "Application submitted successfully! You will receive a confirmation email shortly.",
-      );
-    }, 2000);
-  };
+  setIsSubmitting(true);
+
+  // Save form data
+  localStorage.setItem("eilApplicationData", JSON.stringify(formData));
+
+  // Simulate submission
+  setTimeout(() => {
+    setIsSubmitting(false);
+    alert(
+      "Application submitted successfully! You will receive a confirmation email shortly.",
+    );
+
+    // Redirect to download page
+    navigate("/download");
+  }, 2000);
+};
 
   const nextStep = () => {
   if (!validateCurrentStep()) {
