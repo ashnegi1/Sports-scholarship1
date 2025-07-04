@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+
 import Navigation from "@/components/Navigation";
 import {
   Card,
@@ -42,7 +42,7 @@ import applicationService from "@/lib/api/applicationService";
 import { useAuth } from "@/lib/AuthContext";
 
 const Apply = () => {
-  const navigate = useNavigate();
+
   const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -237,27 +237,11 @@ const Apply = () => {
     setTimeout(() => setIsDraftSaved(false), 2000);
   };
 
-<<<<<<< HEAD
+
   const navigate = useNavigate();
 
-  const submitApplication = () => {
-  setIsSubmitting(true);
 
-  // Save form data
-  localStorage.setItem("eilApplicationData", JSON.stringify(formData));
 
-  // Simulate submission
-  setTimeout(() => {
-    setIsSubmitting(false);
-    alert(
-      "Application submitted successfully! You will receive a confirmation email shortly.",
-    );
-
-    // Redirect to download page
-    navigate("/download");
-  }, 2000);
-};
-=======
   // Add declaration handler
   const handleDeclarationChange = (field: string) => (checked: boolean) => {
     setDeclarations({
@@ -380,7 +364,7 @@ const Apply = () => {
       }
     }
   };
->>>>>>> 4c9f3050c7f33501ae2a8ad8c0aa3676b84ba09e
+
 
   const nextStep = () => {
   if (!validateCurrentStep()) {
