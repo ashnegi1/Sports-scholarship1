@@ -58,7 +58,8 @@ const SignUpModal = ({
     "Aerospace Engineering",
     "Biomedical Engineering",
     "Environmental Engineering",
-    "Other"
+    "Information Technology",
+    "other"
   ];
 
   const studyYears = [
@@ -66,7 +67,6 @@ const SignUpModal = ({
     "2nd Year", 
     "3rd Year",
     "4th Year",
-    "5th Year",
     "Graduated"
   ];
 
