@@ -18,13 +18,15 @@ The **Sports Scholarship App** is a web-based platform built with **Vite**, **Re
 
 ## 🛠️ Tech Stack
 
-* **Frontend:** React + TypeScript
-* **Build Tool:** Vite
-* **State Management:** React Hooks / Context API (or preferred lib)
-* **Styling:** Tailwind CSS (optional)
-* **Routing:** React Router
-* **Form Handling:** React Hook Form (recommended)
-* **File Upload:** Multer (backend)
+- **Language Used:** TypeScript  
+- **Frontend:** React + TypeScript  
+- **Build Tool:** Vite  
+- **State Management:** React Hooks / Context API (or preferred library)  
+- **Styling:** Tailwind CSS (optional)  
+- **Routing:** React Router  
+- **Form Handling:** React Hook Form (recommended)  
+- **File Upload:** Multer (backend)
+
 
 ## 📦 Installation
 
