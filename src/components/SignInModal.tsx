@@ -26,8 +26,8 @@ const SignInModal = ({
 }: SignInModalProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    email: "shreyansjaiswal2005@gmail.com",
-    password: "jaiswal12345",
+    email: "",
+    password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -47,8 +47,8 @@ const SignInModal = ({
       onClose();               // Close modal
       navigate("/apply");      // ✅ Redirect to apply page
       setFormData({
-        email: "shreyansjaiswal2005@gmail.com",
-        password: "jaiswal12345",
+        email: "",
+        password: "",
       });
     } else {
       setError(result.error || "Invalid email or password");
