@@ -129,7 +129,7 @@ const Download = () => {
 
       pdf.setFontSize(14);
       pdf.setFont("helvetica", "bold");
-      pdf.text("ENGINEERING ACHIEVEMENTS", margin, yPosition);
+      pdf.text("SPORTS ACHIEVEMENTS", margin, yPosition);
       yPosition += 15;
 
       pdf.setFontSize(10);
@@ -137,11 +137,11 @@ const Download = () => {
 
       const engineeringInfo = [
         ["Engineering Field:", formData.engineeringField || "Not provided"],
-        ["Project Type:", formData.projectType || "Not provided"],
-        ["Project Name:", formData.projectName || "Not provided"],
+        ["Sports Type:", formData.projectType || "Not provided"],
+        ["Sports Name:", formData.projectName || "Not provided"],
         ["Position/Level:", formData.positionLevel || "Not provided"],
-        ["Result/Metrics:", formData.resultMetrics || "Not provided"],
-        ["Project Date:", formData.projectDate || "Not provided"],
+        ["Result:", formData.resultMetrics || "Not provided"],
+        ["Tournament Date:", formData.projectDate || "Not provided"],
       ];
 
       engineeringInfo.forEach(([label, value]) => {
