@@ -940,12 +940,12 @@ const Apply = () => {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="SportsName">Sports Name *</Label>
+          <Label htmlFor="SportsName">Tournament Name *</Label>
           <Input
             id="SportsName"
             value={formData.SportsName}
             onChange={handleInputChange("SportsName")}
-            placeholder="Enter your Sports name"
+            placeholder="Enter your Tournament name"
             required
           />
         </div>

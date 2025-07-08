@@ -35,7 +35,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Check for existing user session on mount
     const storedUser = localStorage.getItem('auth_user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setUser(parsedUser);
+        console.log("User loaded from localStorage:", parsedUser);
+        console.log("User role:", parsedUser.role);
+        console.log("Is admin?", parsedUser.role === 'admin');
+      } catch (error) {
+        console.error("Error parsing stored user:", error);
+      }
+    } else {
+      console.log("No user found in localStorage");
     }
     setLoading(false);
   }, []);
@@ -44,13 +54,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     try {
       const result = await authService.login(email, password);
+      console.log("Sign in result:", result);
+      
       if (result.success && result.user) {
         setUser(result.user);
+        console.log("User signed in:", result.user);
+        console.log("User role:", result.user.role);
+        console.log("Is admin?", result.user.role === 'admin');
         return { success: true };
       }
       setLoading(false);
       return result;
     } catch (error: any) {
+      console.error("Sign in error:", error);
       setLoading(false);
       return {
         success: false,
@@ -85,11 +101,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const result = await authService.register(userData);
       if (result.success && result.user) {
         setUser(result.user);
+        console.log("User registered:", result.user);
         return { success: true };
       }
       setLoading(false);
       return result;
     } catch (error: any) {
+      console.error("Sign up error:", error);
       setLoading(false);
       return {
         success: false,
@@ -102,11 +120,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true);
     authService.logout();
     setUser(null);
+    console.log("User signed out");
     setLoading(false);
   };
 
   const isAuthenticated = !!user;
   const isAdmin = user?.role === 'admin';
+
+  console.log("Auth context state:", { isAuthenticated, isAdmin, user: user?.email });
 
   return (
     <AuthContext.Provider

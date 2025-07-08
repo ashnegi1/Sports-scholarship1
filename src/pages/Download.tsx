@@ -138,7 +138,7 @@ const Download = () => {
       const engineeringInfo = [
         ["Engineering Field:", formData.engineeringField || "Not provided"],
         ["Sports Type:", formData.projectType || "Not provided"],
-        ["Sports Name:", formData.projectName || "Not provided"],
+        ["Tournament Name:", formData.projectName || "Not provided"],
         ["Position/Level:", formData.positionLevel || "Not provided"],
         ["Result:", formData.resultMetrics || "Not provided"],
         ["Tournament Date:", formData.projectDate || "Not provided"],

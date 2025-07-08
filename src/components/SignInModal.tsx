@@ -17,12 +17,14 @@ interface SignInModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSwitchToSignUp: () => void;
+  redirectTo?: string;
 }
 
 const SignInModal = ({
   isOpen,
   onClose,
   onSwitchToSignUp,
+  redirectTo = "/apply",
 }: SignInModalProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -44,8 +46,20 @@ const SignInModal = ({
     const result = await signIn(formData.email, formData.password);
 
     if (result.success) {
-      onClose();               // Close modal
-      navigate("/apply");      // ✅ Redirect to apply page
+      onClose();
+      
+      // Check if user is admin from the result or localStorage
+      const storedUser = localStorage.getItem('auth_user');
+      const user = storedUser ? JSON.parse(storedUser) : null;
+      const isAdmin = user?.role === 'admin';
+      
+      // Redirect admin users to admin dashboard, regular users to redirectTo or apply page
+      if (isAdmin) {
+        navigate("/admin");
+      } else {
+        navigate(redirectTo);
+      }
+      
       setFormData({
         email: "",
         password: "",

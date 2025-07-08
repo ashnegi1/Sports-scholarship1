@@ -147,6 +147,33 @@ const register = async (userData) => {
   }
 };
 
+// Function to ensure admin role is correctly set for known admin emails
+function ensureAdminRole() {
+  try {
+    const storedUser = localStorage.getItem('auth_user');
+    if (!storedUser) return;
+    
+    const user = JSON.parse(storedUser);
+    // Check if this user should be an admin
+    const adminEmails = [
+      'admin@example.com',
+      'shreyans.jaiswal704@gmail.com',
+      'admin@eil.com'
+    ];
+    
+    const shouldBeAdmin = adminEmails.includes(user.email) || user.email?.toLowerCase().includes('admin');
+    
+    if (shouldBeAdmin && user.role !== 'admin') {
+      console.log(`Setting admin role for ${user.email}`);
+      user.role = 'admin';
+      localStorage.setItem('auth_user', JSON.stringify(user));
+      console.log('User role updated to admin');
+    }
+  } catch (error) {
+    console.error('Error in ensureAdminRole:', error);
+  }
+}
+
 // Login user
 const login = async (email, password) => {
   console.log('Attempting login for:', email);
@@ -156,9 +183,35 @@ const login = async (email, password) => {
     console.log('Login response:', response.data);
     
     if (response.data.token) {
-      localStorage.setItem('auth_token', response.data.token);
-      localStorage.setItem('auth_user', JSON.stringify(response.data.user));
-      console.log('User logged in successfully');
+      // Check if user object has role property
+      if (response.data.user) {
+        console.log('User role from API:', response.data.user.role);
+        
+        // Make sure user has a role, default to 'user' if not present
+        if (!response.data.user.role) {
+          console.warn('User has no role, defaulting to "user"');
+          response.data.user.role = 'user';
+        }
+        
+        // For demo/debug purposes - If the email includes "admin", set role to admin
+        // This is just for testing - remove in production
+        if (email.toLowerCase().includes('admin') || email === 'shreyans.jaiswal704@gmail.com') {
+          console.log('Setting admin role based on email pattern');
+          response.data.user.role = 'admin';
+        }
+        
+        localStorage.setItem('auth_token', response.data.token);
+        localStorage.setItem('auth_user', JSON.stringify(response.data.user));
+        console.log('User logged in successfully');
+        console.log('Stored user data:', JSON.stringify(response.data.user));
+        
+        // Run the admin role check immediately after login
+        ensureAdminRole();
+      } else {
+        console.error('Login response contained token but no user data');
+      }
+    } else {
+      console.warn('Login response did not contain a token');
     }
 
     return {
@@ -198,6 +251,12 @@ const login = async (email, password) => {
     };
   }
 };
+
+// Add additional admin role check on auth service init (runs when page loads)
+(() => {
+  console.log('Checking admin role on page load');
+  ensureAdminRole();
+})();
 
 // Logout user
 const logout = () => {

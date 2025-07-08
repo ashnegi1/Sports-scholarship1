@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Building2, Menu, X, User, LogOut } from "lucide-react";
+import { Building2, Menu, X, User, LogOut, ShieldAlert } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/lib/AuthContext";
@@ -19,7 +19,7 @@ const Navigation = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [isSignUpOpen, setIsSignUpOpen] = useState(false);
-  const { user, signOut } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
 
   const handleSignOut = async () => {
     try {
@@ -40,6 +40,11 @@ const Navigation = () => {
     { href: "/apply", label: "Apply" },
     { href: "/download", label: "Download" },
   ];
+
+  // Add admin link only for admin users
+  if (isAdmin) {
+    navItems.push({ href: "/admin", label: "Admin Dashboard" });
+  }
 
   const isActiveRoute = (href: string) => {
     if (href === "/") {
@@ -93,6 +98,7 @@ const Navigation = () => {
                 >
                   <User className="h-4 w-4" />
                   {user.user_metadata?.first_name || user.email?.split("@")[0]}
+                  {isAdmin && <ShieldAlert className="h-4 w-4 ml-1 text-purple-600" />}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -104,6 +110,17 @@ const Navigation = () => {
                 <DropdownMenuItem asChild>
                   <Link to="/apply">My Applications</Link>
                 </DropdownMenuItem>
+                {isAdmin && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin">
+                        <ShieldAlert className="h-4 w-4 mr-2" />
+                        Admin Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                  </>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
                   <LogOut className="h-4 w-4 mr-2" />
@@ -167,9 +184,24 @@ const Navigation = () => {
               <div className="flex flex-col space-y-2 pt-4 border-t">
                 {user ? (
                   <>
-                    <div className="px-2 py-1 text-sm text-muted-foreground">
+                    <div className="px-2 py-1 text-sm text-muted-foreground flex items-center">
                       {user.email}
+                      {isAdmin && <ShieldAlert className="h-4 w-4 ml-2 text-purple-600" />}
                     </div>
+                    {isAdmin && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setIsMobileMenuOpen(false);
+                          window.location.href = "/admin";
+                        }}
+                        className="justify-start text-purple-600"
+                      >
+                        <ShieldAlert className="h-4 w-4 mr-2" />
+                        Admin Dashboard
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="sm"

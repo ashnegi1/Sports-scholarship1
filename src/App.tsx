@@ -15,6 +15,7 @@ import { AuthProvider } from "./lib/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ErrorBoundary from "./components/ErrorBoundary";
 import SignInPage from "./pages/SignInPage"; // 🔥 NEW
+import AdminDebug from "./pages/AdminDebug"; // Admin role debug page
 
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/signin" element={<SignInPage />} />
               <Route path="/download" element={<Download />} />
+              <Route path="/admin-debug" element={<AdminDebug />} />
 
               {/* Protected Routes (User) */}
               <Route element={<ProtectedRoute />}>
